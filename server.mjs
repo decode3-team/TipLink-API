@@ -5,6 +5,7 @@ import { TipLink } from './dist/index.js'; // Import the TipLink class
 
 const app = express();
 const port = 3001;
+const main_link = 'https://tiplink.io/i';
 app.use(cors());
 
 app.get('/tiplink/create', async (req, res) => {
@@ -21,7 +22,8 @@ app.get('/tiplink/create', async (req, res) => {
 app.get('/tiplink/fromLink', async (req, res) => {
   const { link } = req.query;
   try {
-    const tipLink = await TipLink.fromLink(link);
+    const decodedLink = main_link + '#' + link; // Decode the link
+    const tipLink = await TipLink.fromLink(decodedLink);
     res.json({ message: 'TipLink from link', data: tipLink });
   } catch (error) {
     res
