@@ -77,7 +77,7 @@ export class TipLink {
       // can't assign hash as it causes an error in React Native
       const link = new URL(urlString)
       const tiplink = new TipLink(link, keypair);
-      tiplink.url.href = tiplink.url.href.replace('tiplink', 'multilink');
+      tiplink.url.href = tiplink.url.href.replace('tiplink.io', 'solana-tip-link.vercel.app/claim');
       return tiplink;
     } else { // version === 0
       const b = await randBuf(DEFAULT_TIPLINK_KEYLENGTH);
@@ -88,7 +88,7 @@ export class TipLink {
       const link = new URL(urlString)
       const tiplink = new TipLink(link, keypair);
       console.log(tiplink)
-      tiplink.url.href = tiplink.url.href.replace('tiplink', 'multilink');
+      tiplink.url.href = tiplink.url.href.replace('tiplink.io', 'solana-tip-link.vercel.app/claim');
       return tiplink;
     }
   }
