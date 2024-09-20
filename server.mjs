@@ -14,7 +14,6 @@ app.use(express.json());
 app.get('/tiplink/create', async (req, res) => {
   try {
     const tipLink = await TipLink.create();
-    console.log(tipLink);
     res.json({ message: 'TipLink created', data: tipLink });
   } catch (error) {
     res
@@ -58,7 +57,11 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
       useFingerprint: true, // optional: default true
       unlimitedClaims: false, // optional: default false // WARNING: this is global per campaign and affects all dispensers for that campaign
     });
-    console.log('dispenser', dispenser.url);
+
+    const dispenserURL = dispenser.url.href;
+    const updatedURL = dispenserURL.replace('tiplink', 'multilink');
+    dispenser.url = updatedURL; // Or re-create a URL object if necessary
+
     res.json({ message: 'success', data: dispenser.url });
   } catch (error) {
     res.status(500).json({ message: 'error', error: error.message });

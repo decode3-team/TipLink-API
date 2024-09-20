@@ -317,9 +317,7 @@ export class Campaign extends TipLinkApi {
       }
 
       const encryptedLink = await encrypt(tiplink.url.toString(), this.encryptionKey, this.encryptionSalt);
-      console.log(tiplink)
       const publicKey = tiplink.keypair.publicKey.toString();
-      console.log("ddd")
 
       const result = {
         public_key: publicKey,
