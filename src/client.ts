@@ -33,11 +33,12 @@ export class TipLinkClient {
 
   public static async init(apiKey: string, version=1): Promise<TipLinkClient> {
     const client = new TipLinkClient(apiKey, version);
-
-    const apiKeyRes = await client.fetch("api_key");
-    client.id = apiKeyRes['account']['id'];
-    client.publicKey = apiKeyRes['account']['public_key'];
-
+    
+    await client.fetch("api_key").then((res)=>{
+      client.id = res['account']['id'];
+      client.publicKey = res['account']['public_key'];
+    });
+    
     return client;
   }
 
@@ -316,7 +317,9 @@ export class Campaign extends TipLinkApi {
       }
 
       const encryptedLink = await encrypt(tiplink.url.toString(), this.encryptionKey, this.encryptionSalt);
+      console.log(tiplink)
       const publicKey = tiplink.keypair.publicKey.toString();
+      console.log("ddd")
 
       const result = {
         public_key: publicKey,

@@ -18,10 +18,11 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",
     "@solana/spl-token": "^0.3.10",
-    "@solana/web3.js": "^1.48.0",
+    "@solana/web3.js": "^1.95.3",
     "bs58": "^5.0.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "flatted": "^3.3.1",
     "libsodium": "^0.7.11",
     "libsodium-wrappers-sumo": "^0.7.11",
     "nanoid": "^3.3.6",
