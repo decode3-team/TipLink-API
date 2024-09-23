@@ -52,7 +52,6 @@ app.get('/tiplink/fromLink', async (req, res) => {
 
 app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
   const { apikey, version, tipLinks } = req.body;
-
   try {
     const client = await TipLinkClient.init(apikey, version);
     const campaign = await client.campaigns.create({
@@ -63,8 +62,12 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
     const newTipLinks = tipLinks.map((tipLink) => ({
       ...tipLink,
       keypair: Object.assign({}, tipLink.keypair._keypair),
+    }));
+    const dbTipLinks = tipLinks.map((tipLink) => ({
+      url: tipLink.url,
       isClaimed: false,
     }));
+    console.log('llllink', dbTipLinks);
 
     await campaign.addEntries(newTipLinks);
 
@@ -75,13 +78,14 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
     });
 
     const dispenserURL = dispenser.url.href;
-    const updatedURL = dispenserURL.replace('tiplink', 'multilink');
+    const updatedURL = dispenserURL.replace('tiplink.io/f', 'solana-tip-link.vercel.app/claim');
     dispenser.url = updatedURL; // Or re-create a URL object if necessary
 
     const collection = db.collection('dispenserData'); // Replace 'dispenserData' with your desired collection name
     const result = await collection.insertOne({
       dispenserURL: updatedURL,
-      newTipLinks: newTipLinks,
+      newTipLinks: JSON.stringify(dbTipLinks),
+      claimedBy: [],
       createdAt: new Date(),
     });
 
