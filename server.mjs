@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { stringify } from 'flatted';
+import { MongoClient } from 'mongodb';
 
 import { TipLink, TipLinkClient } from './dist/index.js'; // Import the TipLink class
 import { Keypair } from '@solana/web3.js';
@@ -10,6 +11,20 @@ const port = 3001;
 const main_link = 'https://tiplink.io/i';
 app.use(cors());
 app.use(express.json());
+
+const mongoURI = 'mongodb://mongo:MiBgsUXZBCKiYSJGJdiJSSlhlCcNeHiI@junction.proxy.rlwy.net:25438'; // Replace with your MongoDB URI
+const dbName = 'test'; // Replace with your database name
+
+let db;
+
+const connectToMongo = async () => {
+  const client = new MongoClient(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+  await client.connect();
+  db = client.db(dbName);
+  console.log('Connected to MongoDB');
+};
+
+connectToMongo().catch(console.error);
 
 app.get('/tiplink/create', async (req, res) => {
   try {
@@ -48,6 +63,7 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
     const newTipLinks = tipLinks.map((tipLink) => ({
       ...tipLink,
       keypair: Object.assign({}, tipLink.keypair._keypair),
+      isClaimed: false,
     }));
 
     await campaign.addEntries(newTipLinks);
@@ -61,6 +77,13 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
     const dispenserURL = dispenser.url.href;
     const updatedURL = dispenserURL.replace('tiplink', 'multilink');
     dispenser.url = updatedURL; // Or re-create a URL object if necessary
+
+    const collection = db.collection('dispenserData'); // Replace 'dispenserData' with your desired collection name
+    const result = await collection.insertOne({
+      dispenserURL: updatedURL,
+      newTipLinks: newTipLinks,
+      createdAt: new Date(),
+    });
 
     res.json({ message: 'success', data: dispenser.url });
   } catch (error) {
