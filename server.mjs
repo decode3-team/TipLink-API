@@ -26,18 +26,18 @@ const connectToMongo = async () => {
 
 connectToMongo().catch(console.error);
 
-app.get('/tiplink/create', async (req, res) => {
+app.get('/frenslink/create', async (req, res) => {
   try {
     const tipLink = await TipLink.create();
-    res.json({ message: 'TipLink created', data: tipLink });
+    res.json({ message: 'FresLink created', data: tipLink });
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Error creating TipLink', error: error.message });
+      .json({ message: 'Error creating FresLink', error: error.message });
   }
 });
 
-app.get('/tiplink/fromLink', async (req, res) => {
+app.get('/frenslink/fromLink', async (req, res) => {
   const { link } = req.query;
   try {
     const decodedLink = main_link + '#' + link; // Decode the link
@@ -50,7 +50,44 @@ app.get('/tiplink/fromLink', async (req, res) => {
   }
 });
 
-app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
+app.get('/freslink/fromURL', async (req, res) => {
+  const { link } = req.query;
+  
+  try {
+    const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const dispenser = await db.collection('dispenserData').findOne({ dispenserURL: link });
+    if (!dispenser) {
+      return res.status(404).json({ message: 'Dispenser URL not found.' });
+    }
+
+    const isClaimedByIP = dispenser.claimedBy.includes(clientIP);
+    if (isClaimedByIP) {
+      return res.status(400).json({ message: 'You have already claimed this link', claimedByIP: true });
+    }
+
+    const newTipLinks = JSON.parse(dispenser.newTipLinks);
+    const availableTipLink = newTipLinks.find(tipLink => !tipLink.isClaimed);
+
+    if (!availableTipLink) {
+      return res.status(404).json({ message: 'No available unclaimed tip links found.' });
+    }
+
+    // availableTipLink.isClaimed = true;
+    // await db.collection('dispenserData').updateOne(
+    //   { dispenserURL: link },
+    //   {
+    //     $set: { newTipLinks: JSON.stringify(newTipLinks) },
+    //     $push: { claimedBy: clientIP }
+    //   }
+    // );
+
+    res.json({ message: 'Link fetched successfully', tipLink: availableTipLink });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching DispenserLink', error: error.message });
+  }
+});
+
+app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
   const { apikey, version, tipLinks } = req.body;
   try {
     const client = await TipLinkClient.init(apikey, version);
@@ -67,7 +104,6 @@ app.post('/tiplink/client/create/dispenserURL', async (req, res) => {
       url: tipLink.url,
       isClaimed: false,
     }));
-    console.log('llllink', dbTipLinks);
 
     await campaign.addEntries(newTipLinks);
 
