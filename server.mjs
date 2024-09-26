@@ -81,7 +81,7 @@ app.get('/freslink/fromURL', async (req, res) => {
     //   }
     // );
 
-    res.json({ message: 'Link fetched successfully', tipLink: availableTipLink });
+    res.json({ message: 'Link fetched successfully', tipLink: availableTipLink, token: dispenser.token });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching DispenserLink', error: error.message });
   }
