@@ -102,6 +102,7 @@ app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
     }));
     const dbTipLinks = tipLinks.map((tipLink) => ({
       url: tipLink.url,
+      amount: tipLink.amount,
       isClaimed: false,
     }));
 
