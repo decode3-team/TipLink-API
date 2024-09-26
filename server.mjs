@@ -88,24 +88,27 @@ app.get('/freslink/fromURL', async (req, res) => {
 });
 
 app.post('/frenslink/claim', async (req, res) => {
-  const { tipLinkUrl, walletAddress } = req.body;
+  const { tipLinkUrl, walletAddress, dispenserURL } = req.body;
 
   try {
     // Find the TipLink document that contains the tipLinkUrl
-    const tipLink = await db.collection('dispenserData').findOne({ 'newTipLinks.url': tipLinkUrl });
+    const tipLink = await db.collection('dispenserData').findOne({ dispenserURL });
 
     if (!tipLink) {
-      return res.status(404).send({ message: 'TipLink not found' });
+      return res.status(404).send({ message: 'Campaign not found' });
     }
 
+    let oldTipLinksArray = JSON.parse(tipLink.newTipLinks);
     // Update claimedBy array with the wallet address and set the isClaimed flag
-    tipLink.newTipLinks = tipLink.newTipLinks.map((link) => {
+    let newTipLinksArray = oldTipLinksArray.map((link) => {
       if (link.url === tipLinkUrl && !link.isClaimed) {
         link.isClaimed = true;
         tipLink.claimedBy.push(walletAddress);
       }
       return link;
     });
+
+    tipLink.newTipLinks = JSON.stringify(newTipLinksArray);
 
     // Save the updated document back to the database
     await tipLink.save();
