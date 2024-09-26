@@ -87,6 +87,36 @@ app.get('/freslink/fromURL', async (req, res) => {
   }
 });
 
+app.post('/frenslink/claim', async (req, res) => {
+  const { tipLinkUrl, walletAddress } = req.body;
+
+  try {
+    // Find the TipLink document that contains the tipLinkUrl
+    const tipLink = await db.collection('dispenserData').findOne({ 'newTipLinks.url': tipLinkUrl });
+
+    if (!tipLink) {
+      return res.status(404).send({ message: 'TipLink not found' });
+    }
+
+    // Update claimedBy array with the wallet address and set the isClaimed flag
+    tipLink.newTipLinks = tipLink.newTipLinks.map((link) => {
+      if (link.url === tipLinkUrl && !link.isClaimed) {
+        link.isClaimed = true;
+        tipLink.claimedBy.push(walletAddress);
+      }
+      return link;
+    });
+
+    // Save the updated document back to the database
+    await tipLink.save();
+
+    res.status(200).send({ message: 'TipLink claimed successfully!' });
+  } catch (err) {
+    console.error('Error updating TipLink:', err);
+    res.status(500).send({ message: 'Error updating TipLink' });
+  }
+});
+
 app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
   const { apikey, version, tipLinks, token } = req.body;
   try {
