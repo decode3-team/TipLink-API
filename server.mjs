@@ -88,7 +88,7 @@ app.get('/freslink/fromURL', async (req, res) => {
 });
 
 app.post('/frenslink/claim', async (req, res) => {
-  const { tipLinkUrl, walletAddress, dispenserURL } = req.body;
+  const { tipLinkUrl, dispenserURL } = req.body;
 
   try {
     // Find the TipLink document that contains the tipLinkUrl
@@ -103,7 +103,8 @@ app.post('/frenslink/claim', async (req, res) => {
     let newTipLinksArray = oldTipLinksArray.map((link) => {
       if (link.url === tipLinkUrl && !link.isClaimed) {
         link.isClaimed = true;
-        tipLink.claimedBy.push(walletAddress);
+        const clientIP = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        tipLink.claimedBy.push(clientIP);
       }
       return link;
     });
