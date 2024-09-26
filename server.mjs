@@ -88,7 +88,7 @@ app.get('/freslink/fromURL', async (req, res) => {
 });
 
 app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
-  const { apikey, version, tipLinks } = req.body;
+  const { apikey, version, tipLinks, token } = req.body;
   try {
     const client = await TipLinkClient.init(apikey, version);
     const campaign = await client.campaigns.create({
@@ -122,6 +122,7 @@ app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
       dispenserURL: updatedURL,
       newTipLinks: JSON.stringify(dbTipLinks),
       claimedBy: [],
+      token,
       createdAt: new Date(),
     });
 
