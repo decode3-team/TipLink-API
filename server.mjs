@@ -88,11 +88,12 @@ app.get('/freslink/fromURL', async (req, res) => {
 });
 
 app.post('/frenslink/claim', async (req, res) => {
-  const { tipLinkUrl, dispenserURL } = req.body;
+  const { tipLinkUrl } = req.body;
+  const { link } = req.query;
 
   try {
     // Find the TipLink document that contains the tipLinkUrl
-    const tipLink = await db.collection('dispenserData').findOne({ dispenserURL });
+    const tipLink = await db.collection('dispenserData').findOne({ dispenserURL: link });
 
     if (!tipLink) {
       return res.status(404).send({ message: 'Campaign not found' });
