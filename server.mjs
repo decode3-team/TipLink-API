@@ -110,10 +110,16 @@ app.post('/frenslink/claim', async (req, res) => {
       return link;
     });
 
-    tipLink.newTipLinks = JSON.stringify(newTipLinksArray);
-
     // Save the updated document back to the database
-    await tipLink.save();
+    await db.collection('dispenserData').updateOne(
+      { _id: tipLink._id }, // Find the document by its ID
+      {
+        $set: {
+          newTipLinks: JSON.stringify(newTipLinksArray),
+          claimedBy: tipLink.claimedBy
+        }
+      }
+    );
 
     res.status(200).send({ message: 'TipLink claimed successfully!' });
   } catch (err) {
