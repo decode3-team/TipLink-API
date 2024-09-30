@@ -81,7 +81,7 @@ app.get('/freslink/fromURL', async (req, res) => {
     //   }
     // );
 
-    res.json({ message: 'Link fetched successfully', tipLink: availableTipLink, token: dispenser.token });
+    res.json({ message: 'Link fetched successfully', tipLink: availableTipLink, token: dispenser.token, symbol: dispenser.symbol });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching DispenserLink', error: error.message });
   }
@@ -129,7 +129,7 @@ app.post('/frenslink/claim', async (req, res) => {
 });
 
 app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
-  const { apikey, version, tipLinks, token } = req.body;
+  const { apikey, version, tipLinks, token, symbol } = req.body;
   try {
     const client = await TipLinkClient.init(apikey, version);
     const campaign = await client.campaigns.create({
@@ -165,6 +165,7 @@ app.post('/frenslink/client/create/dispenserURL', async (req, res) => {
       newTipLinks: JSON.stringify(dbTipLinks),
       claimedBy: [],
       token,
+      symbol,
       createdAt: new Date(),
     });
 
